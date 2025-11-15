@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">moviles</string>
+    <string name="open">Abrir menú</string>
+    <string name="close">Cerrar menú</string>
+    <string-array name="modo_envio_array">
+        <item>beta</item>
+        <item>produccion</item>
+    </string-array>
+    <string name="logo">Logo de la aplicación</string>
+    <string name="product_icon">Ícono del catálogo de productos</string>
+
+
+</resources>
