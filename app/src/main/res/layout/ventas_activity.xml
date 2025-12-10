@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
@@ -32,26 +31,25 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Nueva Cotización"
+                android:text="Registrar Venta"
                 android:textSize="20sp"
                 android:textStyle="bold"
-                android:textColor="#333"
-                android:gravity="center" />
+                android:textColor="#212529"
+                android:gravity="center"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp" />
 
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:visibility="gone" />
+            <View
+                android:layout_width="80dp"
+                android:layout_height="0dp" />
         </LinearLayout>
 
-        <!-- Card: Datos del Cliente -->
+        <!-- Sección Cliente -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp">
+            android:elevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -62,19 +60,18 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Datos del Cliente"
+                    android:text="DATOS DEL CLIENTE"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#333"
+                    android:textColor="#007BFF"
                     android:layout_marginBottom="12dp" />
 
-                <!-- RUC -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="RUC:"
+                    android:text="RUC"
                     android:textSize="14sp"
-                    android:textColor="#666"
+                    android:textColor="#495057"
                     android:layout_marginBottom="4dp" />
 
                 <LinearLayout
@@ -101,16 +98,15 @@
                         android:text="Buscar"
                         android:textSize="14sp"
                         android:layout_marginStart="8dp"
-                        android:backgroundTint="#007BFF" />
+                        android:backgroundTint="#28A745" />
                 </LinearLayout>
 
-                <!-- Razón Social -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Razón Social:"
+                    android:text="Razón Social"
                     android:textSize="14sp"
-                    android:textColor="#666"
+                    android:textColor="#495057"
                     android:layout_marginBottom="4dp" />
 
                 <EditText
@@ -120,16 +116,15 @@
                     android:hint="Razón social del cliente"
                     android:inputType="textCapWords"
                     android:padding="12dp"
-                    android:background="@android:drawable/edit_text"
-                    android:layout_marginBottom="12dp" />
+                    android:layout_marginBottom="12dp"
+                    android:background="@android:drawable/edit_text" />
 
-                <!-- Dirección -->
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Dirección:"
+                    android:text="Dirección"
                     android:textSize="14sp"
-                    android:textColor="#666"
+                    android:textColor="#495057"
                     android:layout_marginBottom="4dp" />
 
                 <EditText
@@ -137,57 +132,18 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Dirección del cliente"
-                    android:inputType="textCapWords"
-                    android:padding="12dp"
-                    android:background="@android:drawable/edit_text"
-                    android:layout_marginBottom="12dp" />
-
-                <!-- Persona que Autoriza -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Persona que Autoriza:"
-                    android:textSize="14sp"
-                    android:textColor="#666"
-                    android:layout_marginBottom="4dp" />
-
-                <EditText
-                    android:id="@+id/etPersonaAutoriza"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Nombre de la persona"
-                    android:inputType="textCapWords"
-                    android:padding="12dp"
-                    android:background="@android:drawable/edit_text"
-                    android:layout_marginBottom="12dp" />
-
-                <!-- Asunto -->
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Asunto:"
-                    android:textSize="14sp"
-                    android:textColor="#666"
-                    android:layout_marginBottom="4dp" />
-
-                <EditText
-                    android:id="@+id/etAsunto"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Asunto de la cotización"
                     android:inputType="textCapSentences"
                     android:padding="12dp"
                     android:background="@android:drawable/edit_text" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Card: Productos -->
+        <!-- Sección Datos de Venta -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp">
+            android:elevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -198,13 +154,75 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Productos"
+                    android:text="DATOS DE VENTA"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#333"
+                    android:textColor="#007BFF"
                     android:layout_marginBottom="12dp" />
 
-                <!-- Búsqueda de Producto -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Moneda"
+                    android:textSize="14sp"
+                    android:textColor="#495057"
+                    android:layout_marginBottom="4dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerMoneda"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@android:drawable/edit_text" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Forma de Pago"
+                    android:textSize="14sp"
+                    android:textColor="#495057"
+                    android:layout_marginBottom="4dp" />
+
+                <Spinner
+                    android:id="@+id/spinnerFormaPago"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="12dp"
+                    android:background="@android:drawable/edit_text" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Sección Productos -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:elevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="PRODUCTOS"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#007BFF"
+                    android:layout_marginBottom="12dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Buscar Producto"
+                    android:textSize="14sp"
+                    android:textColor="#495057"
+                    android:layout_marginBottom="4dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -216,7 +234,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:hint="Buscar producto..."
+                        android:hint="Nombre del producto"
                         android:inputType="text"
                         android:padding="12dp"
                         android:background="@android:drawable/edit_text" />
@@ -231,23 +249,21 @@
                         android:backgroundTint="#28A745" />
                 </LinearLayout>
 
-                <!-- Lista de Productos -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvProductos"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:minHeight="150dp" />
+                    android:minHeight="200dp"
+                    android:layout_marginBottom="12dp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Card: Totales -->
+        <!-- Sección Totales -->
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardCornerRadius="8dp"
-            app:cardElevation="4dp"
-            app:cardBackgroundColor="#E8F5E9">
+            android:elevation="4dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -258,13 +274,12 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Resumen"
+                    android:text="TOTALES"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="#333"
+                    android:textColor="#007BFF"
                     android:layout_marginBottom="12dp" />
 
-                <!-- Subtotal -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -276,27 +291,27 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="Subtotal:"
-                        android:textSize="14sp"
-                        android:textColor="#666" />
+                        android:textSize="16sp"
+                        android:textColor="#495057" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="S/ "
-                        android:textSize="14sp"
-                        android:textColor="#666" />
+                        android:textSize="16sp"
+                        android:textColor="#495057" />
 
                     <TextView
                         android:id="@+id/tvSubtotal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0.00"
-                        android:textSize="14sp"
-                        android:textColor="#333"
-                        android:textStyle="bold" />
+                        android:textSize="16sp"
+                        android:textColor="#495057"
+                        android:minWidth="80dp"
+                        android:gravity="end" />
                 </LinearLayout>
 
-                <!-- IGV -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -308,31 +323,31 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="IGV (18%):"
-                        android:textSize="14sp"
-                        android:textColor="#666" />
+                        android:textSize="16sp"
+                        android:textColor="#495057" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="S/ "
-                        android:textSize="14sp"
-                        android:textColor="#666" />
+                        android:textSize="16sp"
+                        android:textColor="#495057" />
 
                     <TextView
                         android:id="@+id/tvIgv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0.00"
-                        android:textSize="14sp"
-                        android:textColor="#333"
-                        android:textStyle="bold" />
+                        android:textSize="16sp"
+                        android:textColor="#495057"
+                        android:minWidth="80dp"
+                        android:gravity="end" />
                 </LinearLayout>
 
-                <!-- Total -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:background="#CCCCCC"
+                    android:background="#DEE2E6"
                     android:layout_marginVertical="8dp" />
 
                 <LinearLayout
@@ -347,7 +362,7 @@
                         android:text="TOTAL:"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="#1B5E20" />
+                        android:textColor="#212529" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -355,7 +370,7 @@
                         android:text="S/ "
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="#1B5E20" />
+                        android:textColor="#28A745" />
 
                     <TextView
                         android:id="@+id/tvTotal"
@@ -364,7 +379,9 @@
                         android:text="0.00"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="#1B5E20" />
+                        android:textColor="#28A745"
+                        android:minWidth="80dp"
+                        android:gravity="end" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
@@ -374,7 +391,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center">
+            android:layout_marginBottom="16dp">
 
             <Button
                 android:id="@+id/btnCancelar"
@@ -391,10 +408,18 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Guardar Cotización"
+                android:text="Guardar Venta"
                 android:textSize="16sp"
-                android:backgroundTint="#28A745"
+                android:backgroundTint="#007BFF"
                 android:layout_marginStart="8dp" />
         </LinearLayout>
+
+        <!-- ProgressBar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
     </LinearLayout>
 </ScrollView>

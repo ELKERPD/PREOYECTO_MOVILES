@@ -1,53 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#F9FAFB"
-    tools:context=".ProductosActivity">
+    android:background="#0F1419">
 
-    <!-- 🔹 Encabezado con sombra y color limpio -->
-    <LinearLayout
+    <!-- Header -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#FFFFFF"
-        android:elevation="6dp"
-        android:paddingHorizontal="16dp"
-        android:paddingVertical="12dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        app:cardBackgroundColor="#1A1F26"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="0dp">
 
-        <ImageView
-            android:id="@+id/imgIcon"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:src="@drawable/ic_inventory"
-            app:tint="#2563EB"
-            android:layout_marginEnd="12dp"
-            android:contentDescription="@string/product_icon" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
 
-        <TextView
-            android:id="@+id/txtTituloProductos"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnVolver"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="Volver"
+                    android:padding="0dp"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    app:icon="@android:drawable/ic_menu_revert"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="20dp"
+                    app:iconTint="#FFFFFF"
+                    app:cornerRadius="24dp"
+                    app:backgroundTint="#2C3139"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="16dp"
+                    android:text="Productos"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnNuevoProducto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="48dp"
+                    android:layout_gravity="center_vertical"
+                    android:text="Nuevo"
+                    android:textSize="14sp"
+                    app:icon="@android:drawable/ic_input_add"
+                    app:iconGravity="textStart"
+                    app:iconPadding="4dp"
+                    app:iconSize="18dp"
+                    app:cornerRadius="20dp"
+                    app:backgroundTint="#E67E22"
+                    android:textColor="#FFFFFF"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gestión de inventario y productos"
+                android:textColor="#7F8C9A"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                android:layout_marginStart="56dp" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Contenedor Principal -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerProductos"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:clipToPadding="false"
+            android:visibility="gone" />
+
+        <!-- ProgressBar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Catálogo de Productos"
-            android:textStyle="bold"
-            android:textColor="#111827"
-            android:textSize="20sp" />
-    </LinearLayout>
+            android:layout_gravity="center"
+            android:indeterminateTint="#E67E22" />
 
-    <!-- 🔹 Lista de productos -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerProductos"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:paddingHorizontal="12dp"
-        android:paddingVertical="8dp"
-        android:scrollbars="vertical"
-        tools:listitem="@layout/item_producto" />
+        <!-- Mensaje -->
+        <TextView
+            android:id="@+id/tvMensaje"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Cargando productos..."
+            android:textColor="#7F8C9A"
+            android:textSize="16sp"
+            android:padding="20dp"
+            android:gravity="center"
+            android:visibility="gone" />
+
+    </FrameLayout>
 
 </LinearLayout>

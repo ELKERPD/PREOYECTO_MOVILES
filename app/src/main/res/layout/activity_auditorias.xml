@@ -1,189 +1,202 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#0F172A"
-    tools:context=".AuditoriasActivity">
+    android:background="#0F1419">
 
     <!-- Header -->
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="#1E293B"
-        app:cardCornerRadius="0dp"
-        app:cardElevation="8dp">
+        app:cardBackgroundColor="#1A1F26"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Título y Botón Volver -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnVolver"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="Volver"
+                    android:padding="0dp"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    app:icon="@android:drawable/ic_menu_revert"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="20dp"
+                    app:iconTint="#FFFFFF"
+                    app:cornerRadius="24dp"
+                    app:backgroundTint="#2C3139"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="16dp"
+                    android:text="Auditorías"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Historial de accesos al sistema"
+                android:textColor="#7F8C9A"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                android:layout_marginStart="56dp" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Información de registros -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@android:drawable/ic_menu_info_details"
+            app:tint="#7F8C9A" />
+
+        <TextView
+            android:id="@+id/tvTotalRegistros"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="Total: 0 registros"
+            android:textColor="#7F8C9A"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvPaginacion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Página 1 de 1"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:background="@android:drawable/dialog_holo_dark_frame"
+            android:backgroundTint="#2C3139"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp" />
+
+    </LinearLayout>
+
+    <!-- Contenedor Principal -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerAuditorias"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:clipToPadding="false"
+            android:visibility="gone" />
+
+        <!-- ProgressBar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="#9B59B6" />
+
+        <!-- Mensaje de Error -->
+        <TextView
+            android:id="@+id/tvMensaje"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Cargando..."
+            android:textColor="#7F8C9A"
+            android:textSize="16sp"
+            android:padding="20dp"
+            android:gravity="center"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+    <!-- Footer con Paginación -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="#1A1F26"
+        app:cardElevation="8dp"
+        app:cardCornerRadius="0dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:padding="16dp"
-            android:gravity="center_vertical">
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/btnAtras"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
-                app:cardCornerRadius="22dp"
-                android:backgroundTint="#0F172A"
-                app:cardElevation="4dp"
-                android:clickable="true"
-                android:focusable="true">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:src="@android:drawable/ic_media_previous"
-                    app:tint="#3B82F6"/>
-            </androidx.cardview.widget.CardView>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal"
-                android:gravity="center"
-                android:layout_marginEnd="44dp">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:src="@android:drawable/ic_menu_search"
-                    app:tint="#F59E0B"
-                    android:layout_marginEnd="10dp"/>
-
-                <TextView
-                    android:id="@+id/txtTituloAuditorias"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Auditoría de Sesiones"
-                    android:textColor="#F8FAFC"
-                    android:textStyle="bold"
-                    android:textSize="20sp"/>
-            </LinearLayout>
-
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <!-- Stats -->
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#1E293B"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="8dp"
-        android:layout_margin="16dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="20dp"
             android:gravity="center">
 
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/txtTotalRegistros"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
-                    android:textColor="#3B82F6"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Registros"
-                    android:textSize="12sp"
-                    android:textColor="#94A3B8"
-                    android:layout_marginTop="4dp"/>
-            </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAnterior"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="Anterior"
+                android:textSize="14sp"
+                app:icon="@android:drawable/ic_media_previous"
+                app:iconGravity="textStart"
+                app:cornerRadius="24dp"
+                app:backgroundTint="#2C3139"
+                android:textColor="#FFFFFF"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
 
             <View
-                android:layout_width="1dp"
-                android:layout_height="40dp"
-                android:background="#334155"/>
-
-            <LinearLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:layout_height="1dp"
+                android:layout_weight="1" />
 
-                <TextView
-                    android:id="@+id/txtRegistrosHoy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="28sp"
-                    android:textStyle="bold"
-                    android:textColor="#10B981"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hoy"
-                    android:textSize="12sp"
-                    android:textColor="#94A3B8"
-                    android:layout_marginTop="4dp"/>
-            </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSiguiente"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="Siguiente"
+                android:textSize="14sp"
+                app:icon="@android:drawable/ic_media_next"
+                app:iconGravity="end"
+                app:cornerRadius="24dp"
+                app:backgroundTint="#9B59B6"
+                android:textColor="#FFFFFF"
+                style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
 
         </LinearLayout>
+
     </androidx.cardview.widget.CardView>
-
-    <!-- Título + Filtro -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Historial de Accesos"
-            android:textColor="#94A3B8"
-            android:textSize="14sp"
-            android:textStyle="bold"/>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/btnFiltrar"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:backgroundTint="#1E293B"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="4dp">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_gravity="center"
-                android:src="@android:drawable/ic_menu_sort_by_size"
-                app:tint="#64748B"/>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
-
-    <!-- RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerAuditorias"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="16dp"
-        android:clipToPadding="false"/>
 
 </LinearLayout>

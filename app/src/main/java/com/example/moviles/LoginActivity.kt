@@ -5,9 +5,11 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import kotlinx.coroutines.*
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONObject
-import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -15,7 +17,6 @@ class LoginActivity : AppCompatActivity() {
 
     private lateinit var etUsuario: EditText
     private lateinit var etContrasena: EditText
-    private lateinit var etToken: EditText
     private lateinit var btnLogin: Button
     private lateinit var tvMensaje: TextView
 
@@ -25,43 +26,43 @@ class LoginActivity : AppCompatActivity() {
 
         etUsuario = findViewById(R.id.etUsuario)
         etContrasena = findViewById(R.id.etContrasena)
-        etToken = findViewById(R.id.etToken)
         btnLogin = findViewById(R.id.btnLogin)
         tvMensaje = findViewById(R.id.tvMensaje)
 
         btnLogin.setOnClickListener {
             val usuario = etUsuario.text.toString().trim()
             val contrasena = etContrasena.text.toString().trim()
-            val token = etToken.text.toString().trim()
 
-            if (usuario.isEmpty() || contrasena.isEmpty() || token.isEmpty()) {
-                tvMensaje.text = "Por favor, completa todos loscampos."
+            if (usuario.isEmpty() || contrasena.isEmpty()) {
+                tvMensaje.text = "Por favor, completa todos los campos."
             } else {
-                realizarLogin(usuario, contrasena, token)
+                realizarLogin(usuario, contrasena)
             }
         }
     }
 
-    private fun realizarLogin(usuario: String, contrasena: String, token: String) {
+    private fun realizarLogin(usuario: String, contrasena: String) {
         tvMensaje.text = "Iniciando sesión..."
 
-        CoroutineScope(Dispatchers.IO).launch {
+        lifecycleScope.launch(Dispatchers.IO) {
+
             var conn: HttpURLConnection? = null
+
             try {
-                val url = URL("http://10.0.2.2/PROYECTO_ERP/API_RES_TECNODESARROLLOPEREZ/zona_acceso987654321.php")
+                val url = URL("https://sercon-aje.com/API_APP_MOVIL/API_RES_TECNODESARROLLOPEREZ/zona_acceso987654321.php")
                 conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "POST"
                 conn.setRequestProperty("Content-Type", "application/json; utf-8")
                 conn.setRequestProperty("Accept", "application/json")
                 conn.doOutput = true
-                // Añadir timeouts es una buena práctica
-                conn.connectTimeout = 15000 // 15 segundos
-                conn.readTimeout = 10000 // 10 segundos
+                conn.connectTimeout = 15000
+                conn.readTimeout = 15000
 
-                val jsonInput = JSONObject()
-                jsonInput.put("usuario", usuario)
-                jsonInput.put("contrasena", contrasena)
-                jsonInput.put("token", token)
+                // JSON a enviar
+                val jsonInput = JSONObject().apply {
+                    put("usuario", usuario)
+                    put("contrasena", contrasena)
+                }
 
                 conn.outputStream.use { os ->
                     os.write(jsonInput.toString().toByteArray(Charsets.UTF_8))
@@ -69,78 +70,79 @@ class LoginActivity : AppCompatActivity() {
 
                 val responseCode = conn.responseCode
 
-                // === ✅ CORRECCIÓN CLAVE: LEER EL STREAM ADECUADO ===
-                val responseText: String
-                if (responseCode == HttpURLConnection.HTTP_OK) { // Código 200
-                    responseText = conn.inputStream.bufferedReader().use { it.readText() }
-                } else {
-                    // Leer del errorStream si el código no es 200
-                    responseText = conn.errorStream?.bufferedReader()?.use { it.readText() } ?: "Error: Sin mensaje de respuesta"
+                val responseText = try {
+                    (if (responseCode in 200..299) conn.inputStream else conn.errorStream)
+                        ?.bufferedReader()?.use { it.readText() }
+                        ?: "Respuesta vacía"
+                } catch (e: Exception) {
+                    "Error al leer respuesta: ${e.message}"
                 }
 
-                // Ahora que tenemos la respuesta, volvemos al hilo principal
                 withContext(Dispatchers.Main) {
-                    if (responseCode == HttpURLConnection.HTTP_OK) {
-                        try {
-                            val json = JSONObject(responseText)
-                            if (json.getBoolean("success")) {
-
-                                // === GUARDAR DATOS EN SharedPreferences ===
-                                val empresa = json.getJSONObject("empresa")
-                                val usuarioJson = json.getJSONObject("usuario")
-                                val tokenRecibido = json.getString("token")
-
-                                val prefs = getSharedPreferences("datos_app", Context.MODE_PRIVATE)
-                                val editor = prefs.edit()
-
-                                editor.putString("token", tokenRecibido)
-                                editor.putInt("id_empresa", empresa.getInt("id_empresa"))
-                                editor.putString("razon_social", empresa.getString("razon_social"))
-                                editor.putInt("id_usuario", usuarioJson.getInt("id_usuario"))
-                                editor.putString("nombres", usuarioJson.getString("nombres"))
-                                editor.putString("apellidos", usuarioJson.getString("apellidos"))
-                                editor.putString("cargo", usuarioJson.getString("cargo"))
-
-                                editor.apply() // Guarda los datos
-
-                                // Mensaje y redirección
-                                Toast.makeText(
-                                    applicationContext,
-                                    "Bienvenido ${usuarioJson.getString("nombres")}",
-                                    Toast.LENGTH_LONG
-                                ).show()
-
-                                startActivity(Intent(this@LoginActivity, PrincipalActivity::class.java))
-                                finish()
-
-                            } else {
-                                // El API devolvió success = false
-                                tvMensaje.text = json.getString("mensaje")
-                            }
-                        } catch (e: Exception) {
-                            // Error al parsear el JSON de éxito
-                            tvMensaje.text = "Error al procesar la respuesta: ${e.localizedMessage}"
-                        }
-                    } else {
-                        // Error de conexión (404, 500, 401, etc.)
-                        // Intentamos mostrar el mensaje de error del API si existe
-                        try {
-                            val json = JSONObject(responseText)
-                            tvMensaje.text = json.optString("mensaje", "Error $responseCode: $responseText")
-                        } catch (e: Exception) {
-                            // Si la respuesta de error no es JSON
-                            tvMensaje.text = "Error $responseCode: $responseText"
-                        }
-                    }
+                    procesarRespuesta(responseCode, responseText)
                 }
+
             } catch (e: Exception) {
-                // Error de red (IOException, SocketTimeoutException, etc.)
                 withContext(Dispatchers.Main) {
-                    tvMensaje.text = "Error de conexión: ${e.localizedMessage}"
+                    tvMensaje.text = "Error de conexión: ${e.message}"
                 }
             } finally {
-                conn?.disconnect() // Asegurarse de cerrar la conexión
+                conn?.disconnect()
             }
+        }
+    }
+
+    private fun procesarRespuesta(responseCode: Int, responseText: String) {
+        try {
+            val json = JSONObject(responseText)
+
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                tvMensaje.text = json.optString("mensaje", "Error $responseCode")
+                return
+            }
+
+            val success = json.optBoolean("success", false)
+            if (!success) {
+                tvMensaje.text = json.optString("mensaje", "Credenciales incorrectas")
+                return
+            }
+
+            // Extraer datos
+            val token = json.getString("token")
+            val empresa = json.getJSONObject("empresa")
+            val usuarioJson = json.getJSONObject("usuario")
+            val permisos = json.getJSONArray("permisos")
+
+            // Guardar en SharedPreferences (CAMBIO: commit() en lugar de apply())
+            val prefs = getSharedPreferences("datos_app", Context.MODE_PRIVATE).edit()
+
+            prefs.putString("token", token)
+
+            prefs.putInt("id_empresa", empresa.optInt("id_empresa"))
+            prefs.putString("razon_social", empresa.optString("razon_social"))
+            prefs.putString("ruc", empresa.optString("ruc"))
+            prefs.putString("logo", empresa.optString("logo"))
+            prefs.putString("fecha_vencimiento", empresa.optString("fecha_vencimiento"))
+            prefs.putString("fecha_corte", empresa.optString("fecha_corte"))
+            prefs.putString("token_expira", empresa.optString("token_expira"))
+
+            prefs.putInt("id_usuario", usuarioJson.optInt("id_usuario"))
+            prefs.putString("nombres", usuarioJson.optString("nombres"))
+            prefs.putString("apellidos", usuarioJson.optString("apellidos"))
+            prefs.putString("cargo", usuarioJson.optString("cargo"))
+            prefs.putString("usuario", usuarioJson.optString("usuario"))
+
+            prefs.putString("permisos", permisos.toString())
+
+            prefs.commit()  // <-- CORREGIDO
+
+            Toast.makeText(this, "Bienvenido ${usuarioJson.optString("nombres")}", Toast.LENGTH_LONG).show()
+
+            startActivity(Intent(this, PrincipalActivity::class.java))
+            finish()
+
+        } catch (e: Exception) {
+            tvMensaje.text = "Error al procesar respuesta: ${e.message}"
         }
     }
 }

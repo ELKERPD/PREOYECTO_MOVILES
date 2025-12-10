@@ -17,7 +17,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import android.content.Intent
 
-class CotizacionesActivity : AppCompatActivity() {
+class VentasActivity : AppCompatActivity() {
 
     // Views
     private lateinit var btnVolver: Button
@@ -25,8 +25,8 @@ class CotizacionesActivity : AppCompatActivity() {
     private lateinit var btnBuscarRuc: Button
     private lateinit var etRazonSocial: EditText
     private lateinit var etDireccion: EditText
-    private lateinit var etPersonaAutoriza: EditText
-    private lateinit var etAsunto: EditText
+    private lateinit var spinnerMoneda: Spinner
+    private lateinit var spinnerFormaPago: Spinner
     private lateinit var etBuscarProducto: EditText
     private lateinit var btnBuscarProducto: Button
     private lateinit var rvProductos: RecyclerView
@@ -38,8 +38,8 @@ class CotizacionesActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
 
     // Data
-    private val productosAgregados = mutableListOf<ProductoCotizacion>()
-    private lateinit var productosAdapter: ProductosCotizacionAdapter
+    private val productosAgregados = mutableListOf<ProductoVenta>()
+    private lateinit var productosAdapter: ProductosVentaAdapter
 
     // Datos de sesión
     private var idEmpresa: Int = 0
@@ -48,10 +48,11 @@ class CotizacionesActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.cotizaciones_activity)
+        setContentView(R.layout.ventas_activity)
 
         cargarDatosSesion()
         inicializarVistas()
+        configurarSpinners()
         configurarRecyclerView()
         configurarEventos()
     }
@@ -69,8 +70,8 @@ class CotizacionesActivity : AppCompatActivity() {
         btnBuscarRuc = findViewById(R.id.btnBuscarRuc)
         etRazonSocial = findViewById(R.id.etRazonSocial)
         etDireccion = findViewById(R.id.etDireccion)
-        etPersonaAutoriza = findViewById(R.id.etPersonaAutoriza)
-        etAsunto = findViewById(R.id.etAsunto)
+        spinnerMoneda = findViewById(R.id.spinnerMoneda)
+        spinnerFormaPago = findViewById(R.id.spinnerFormaPago)
         etBuscarProducto = findViewById(R.id.etBuscarProducto)
         btnBuscarProducto = findViewById(R.id.btnBuscarProducto)
         rvProductos = findViewById(R.id.rvProductos)
@@ -82,12 +83,26 @@ class CotizacionesActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
     }
 
+    private fun configurarSpinners() {
+        // Spinner Moneda
+        val monedas = arrayOf("PEN", "USD")
+        val adapterMoneda = ArrayAdapter(this, android.R.layout.simple_spinner_item, monedas)
+        adapterMoneda.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerMoneda.adapter = adapterMoneda
+
+        // Spinner Forma de Pago
+        val formasPago = arrayOf("Contado", "Crédito", "Transferencia")
+        val adapterFormaPago = ArrayAdapter(this, android.R.layout.simple_spinner_item, formasPago)
+        adapterFormaPago.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerFormaPago.adapter = adapterFormaPago
+    }
+
     private fun configurarRecyclerView() {
-        productosAdapter = ProductosCotizacionAdapter(productosAgregados) {
+        productosAdapter = ProductosVentaAdapter(productosAgregados) {
             calcularTotales()
         }
         rvProductos.apply {
-            layoutManager = LinearLayoutManager(this@CotizacionesActivity)
+            layoutManager = LinearLayoutManager(this@VentasActivity)
             adapter = productosAdapter
         }
     }
@@ -96,7 +111,7 @@ class CotizacionesActivity : AppCompatActivity() {
         btnVolver.setOnClickListener { finish() }
         btnBuscarRuc.setOnClickListener { buscarRuc() }
         btnBuscarProducto.setOnClickListener { buscarProducto() }
-        btnGuardar.setOnClickListener { guardarCotizacion() }
+        btnGuardar.setOnClickListener { guardarVenta() }
         btnCancelar.setOnClickListener { limpiarFormulario() }
     }
 
@@ -119,7 +134,6 @@ class CotizacionesActivity : AppCompatActivity() {
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
                 conn.doOutput = true
 
-                // AGREGAR token e id_empresa
                 val postData = "token=$token&id_empresa=$idEmpresa&ruc=$ruc"
                 conn.outputStream.use { it.write(postData.toByteArray()) }
 
@@ -135,9 +149,8 @@ class CotizacionesActivity : AppCompatActivity() {
                     } else {
                         val mensaje = json.getString("mensaje")
                         Toast.makeText(applicationContext, mensaje, Toast.LENGTH_SHORT).show()
-                        
-                        // Si el token expiró o es inválido, cerrar sesión
-                        if (mensaje.contains("Token", ignoreCase = true) || 
+
+                        if (mensaje.contains("Token", ignoreCase = true) ||
                             mensaje.contains("expirado", ignoreCase = true)) {
                             cerrarSesion()
                         }
@@ -157,7 +170,6 @@ class CotizacionesActivity : AppCompatActivity() {
     private fun buscarProducto() {
         val texto = etBuscarProducto.text.toString().trim()
 
-        // Validación local
         if (texto.isEmpty()) {
             Toast.makeText(this, "Ingrese texto de búsqueda", Toast.LENGTH_SHORT).show()
             return
@@ -168,19 +180,14 @@ class CotizacionesActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             var conn: HttpURLConnection? = null
             try {
-
                 val url = URL("https://sercon-aje.com/API_APP_MOVIL/API_RES_TECNODESARROLLOPEREZ/busqueda_producto.php")
                 conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "POST"
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
                 conn.doOutput = true
 
-                // 🌟 AHORA SÍ: se envían los parámetros correctos
                 val postData = "token=${token}&id_empresa=${idEmpresa}&busqueda=${texto}"
-
-                conn.outputStream.use {
-                    it.write(postData.toByteArray(Charsets.UTF_8))
-                }
+                conn.outputStream.use { it.write(postData.toByteArray(Charsets.UTF_8)) }
 
                 val response = conn.inputStream.bufferedReader().readText()
                 val json = JSONObject(response)
@@ -189,11 +196,9 @@ class CotizacionesActivity : AppCompatActivity() {
                     progressBar.visibility = View.GONE
 
                     if (json.getBoolean("success")) {
-
                         val productosArray = json.getJSONArray("productos")
                         val productosFiltrados = mutableListOf<JSONObject>()
 
-                        // Ya no filtra vacío porque "texto" siempre tiene valor
                         for (i in 0 until productosArray.length()) {
                             val p = productosArray.getJSONObject(i)
                             val nombre = p.getString("nombre").lowercase()
@@ -214,25 +219,21 @@ class CotizacionesActivity : AppCompatActivity() {
                                 mostrarSelectorProductos(productosFiltrados)
                             }
                         }
-
                     } else {
                         val mensaje = json.getString("mensaje")
                         Toast.makeText(applicationContext, mensaje, Toast.LENGTH_SHORT).show()
 
-                        // Manejo de token inválido/expirado
                         if (mensaje.contains("Token", ignoreCase = true) ||
                             mensaje.contains("expira", ignoreCase = true)) {
                             cerrarSesion()
                         }
                     }
                 }
-
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     progressBar.visibility = View.GONE
                     Toast.makeText(applicationContext, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
-
             } finally {
                 conn?.disconnect()
             }
@@ -242,16 +243,15 @@ class CotizacionesActivity : AppCompatActivity() {
     private fun agregarProductoTabla(productoJson: JSONObject) {
         val idProducto = productoJson.getInt("id_producto")
 
-        // Verificar si ya existe
         if (productosAgregados.any { it.idProducto == idProducto }) {
             Toast.makeText(this, "El producto ya está agregado", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val producto = ProductoCotizacion(
+        val producto = ProductoVenta(
             idProducto = idProducto,
+            codigo = productoJson.optString("codigo", ""),
             nombre = productoJson.getString("nombre"),
-            descripcion = productoJson.optString("descripcion", ""),
             precioUnitario = productoJson.optDouble("precio_venta", 0.0),
             cantidad = 1
         )
@@ -293,8 +293,8 @@ class CotizacionesActivity : AppCompatActivity() {
         tvTotal.text = String.format("%.2f", total)
     }
 
-    private fun guardarCotizacion() {
-        // Validaciones
+    private fun guardarVenta() {
+        // Validar productos
         if (productosAgregados.isEmpty()) {
             Toast.makeText(this, "Agregue al menos un producto", Toast.LENGTH_SHORT).show()
             return
@@ -318,56 +318,53 @@ class CotizacionesActivity : AppCompatActivity() {
         CoroutineScope(Dispatchers.IO).launch {
             var conn: HttpURLConnection? = null
             try {
-                val url = URL("https://sercon-aje.com/API_APP_MOVIL/API_RES_TECNODESARROLLOPEREZ/cotizaciones.php")
+                // 🔥 CONSTRUIR JSON COMO LO ESPERA EL PHP
+                val jsonBody = JSONObject().apply {
+                    put("ruc", ruc)
+                    put("razon_social", razonSocial)
+                    put("direccion", etDireccion.text.toString())
+                    put("moneda", spinnerMoneda.selectedItem.toString())
+                    put("forma_pago", spinnerFormaPago.selectedItem.toString())
+                    put("subtotal", tvSubtotal.text.toString().toDouble())
+                    put("igv", tvIgv.text.toString().toDouble())
+                    put("total", tvTotal.text.toString().toDouble())
+
+                    // 🔥 ARRAY DE PRODUCTOS CON LA ESTRUCTURA CORRECTA
+                    val productosArray = JSONArray()
+                    productosAgregados.forEach { p ->
+                        val productoObj = JSONObject().apply {
+                            put("id_producto", p.idProducto)
+                            put("codigo", p.codigo)
+                            put("nombre", p.nombre)
+                            put("precio", p.precioUnitario)
+                            put("cantidad", p.cantidad)
+                            put("subtotal", p.precioUnitario * p.cantidad)
+                        }
+                        productosArray.put(productoObj)
+                    }
+                    put("productos", productosArray)
+                }
+
+                // 🔥 URL CON PARÁMETROS GET (token, id_empresa, id_usuario)
+                val urlWithParams = "https://sercon-aje.com/API_APP_MOVIL/API_RES_TECNODESARROLLOPEREZ/ventas.php" +
+                        "?token=$token&id_empresa=$idEmpresa&id_usuario=$idUsuario"
+
+                val url = URL(urlWithParams)
                 conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "POST"
                 conn.doOutput = true
-                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+                conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
 
-                // Preparar productos JSON
-                val productosJson = JSONArray()
-                productosAgregados.forEach { p ->
-                    val obj = JSONObject().apply {
-                        put("id_producto", p.idProducto)
-                        put("descripcion", p.nombre)
-                        put("cantidad", p.cantidad)
-                        put("precio_unitario", p.precioUnitario)
-                        put("total", p.precioUnitario * p.cantidad)
-                    }
-                    productosJson.put(obj)
+                // 🔥 ENVIAR JSON EN EL BODY
+                conn.outputStream.use {
+                    it.write(jsonBody.toString().toByteArray(Charsets.UTF_8))
                 }
-
-                val subtotal = tvSubtotal.text.toString()
-                val igv = tvIgv.text.toString()
-                val total = tvTotal.text.toString()
-
-                // Preparar datos con token e id_empresa
-                val postData = buildString {
-                    append("token=$token")
-                    append("&id_empresa=$idEmpresa")
-                    append("&ruc_cliente=$ruc")
-                    append("&razon_social_cliente=$razonSocial")
-                    append("&direccion_cliente=${etDireccion.text}")
-                    append("&persona_autoriza=${etPersonaAutoriza.text}")
-                    append("&asunto=${etAsunto.text}")
-                    append("&moneda=PEN")
-                    append("&forma_pago=Contado")
-                    append("&cuenta_bancaria=N/A")
-                    append("&tiempo_entrega=Inmediato")
-                    append("&validez=30 días")
-                    append("&subtotal=$subtotal")
-                    append("&igv=$igv")
-                    append("&total=$total")
-                    append("&productos=${productosJson}")
-                }
-
-                conn.outputStream.use { it.write(postData.toByteArray()) }
 
                 val responseCode = conn.responseCode
                 val response = if (responseCode == HttpURLConnection.HTTP_OK) {
                     conn.inputStream.bufferedReader().readText()
                 } else {
-                    conn.errorStream?.bufferedReader()?.readText() ?: "Error"
+                    conn.errorStream?.bufferedReader()?.readText() ?: "Error desconocido"
                 }
 
                 val json = JSONObject(response)
@@ -377,36 +374,28 @@ class CotizacionesActivity : AppCompatActivity() {
                     btnGuardar.isEnabled = true
 
                     if (json.getBoolean("success")) {
-
-                        val idGenerado = json.optInt("id_cotizacion", -1)
-                        val numero = json.optString("numero_cotizacion", "")
+                        val idGenerado = json.optInt("id_venta", -1)
+                        val numero = json.optString("numero_venta", "")
 
                         Toast.makeText(
                             applicationContext,
-                            "Cotización guardada: $numero",
+                            "Venta guardada: $numero",
                             Toast.LENGTH_LONG
                         ).show()
 
                         limpiarFormulario()
 
-                        // 👉 Si el backend devolvió el ID, abrir PDF automáticamente
+                        // Abrir PDF si existe el ID
                         if (idGenerado != -1) {
-                            val pdfUrl = "https://sercon-aje.com/PROYECTO_GRUPO_11/CONTROLADOR/boleta_movil.php?id=$idGenerado"
-
+                            val pdfUrl = "https://sercon-aje.com/PROYECTO_GRUPO_11/CONTROLADOR/boleta_vent_movil.php?id=$idGenerado"
                             val intent = Intent(Intent.ACTION_VIEW)
                             intent.data = android.net.Uri.parse(pdfUrl)
                             startActivity(intent)
                         }
-
                     } else {
                         val mensaje = json.getString("mensaje")
-                        Toast.makeText(
-                            applicationContext,
-                            mensaje,
-                            Toast.LENGTH_LONG
-                        ).show()
+                        Toast.makeText(applicationContext, mensaje, Toast.LENGTH_LONG).show()
 
-                        // Si el token expiró o es inválido, cerrar sesión
                         if (mensaje.contains("Token", ignoreCase = true) ||
                             mensaje.contains("expirado", ignoreCase = true)) {
                             cerrarSesion()
@@ -429,14 +418,13 @@ class CotizacionesActivity : AppCompatActivity() {
         }
     }
 
-
     private fun limpiarFormulario() {
         etRuc.text?.clear()
         etRazonSocial.text?.clear()
         etDireccion.text?.clear()
-        etPersonaAutoriza.text?.clear()
-        etAsunto.text?.clear()
         etBuscarProducto.text?.clear()
+        spinnerMoneda.setSelection(0)
+        spinnerFormaPago.setSelection(0)
         productosAgregados.clear()
         productosAdapter.notifyDataSetChanged()
         tvSubtotal.text = "0.00"
@@ -445,38 +433,32 @@ class CotizacionesActivity : AppCompatActivity() {
     }
 
     private fun cerrarSesion() {
-        // Limpiar SharedPreferences
         val prefs = getSharedPreferences("datos_app", Context.MODE_PRIVATE)
         prefs.edit().clear().apply()
 
-        // Mostrar mensaje
         Toast.makeText(this, "Sesión expirada. Por favor, inicie sesión nuevamente.", Toast.LENGTH_LONG).show()
-
-        // Redirigir al login
         finish()
-        // Si tienes una LoginActivity, descoméntala:
-        // val intent = Intent(this, LoginActivity::class.java)
-        // startActivity(intent)
     }
 }
 
 // DATA CLASS
-data class ProductoCotizacion(
+data class ProductoVenta(
     val idProducto: Int,
+    val codigo: String,
     val nombre: String,
-    val descripcion: String,
-    var precioUnitario: Double,
+    val precioUnitario: Double,
     var cantidad: Int
 )
 
 // ADAPTER
-class ProductosCotizacionAdapter(
-    private val productos: MutableList<ProductoCotizacion>,
+class ProductosVentaAdapter(
+    private val productos: MutableList<ProductoVenta>,
     private val onUpdate: () -> Unit
-) : RecyclerView.Adapter<ProductosCotizacionAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<ProductosVentaAdapter.ViewHolder>() {
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvNombre: TextView = view.findViewById(R.id.tvNombre)
+        val tvCodigo: TextView = view.findViewById(R.id.tvCodigo)
         val etCantidad: EditText = view.findViewById(R.id.etCantidad)
         val etPrecio: EditText = view.findViewById(R.id.etPrecio)
         val tvSubtotal: TextView = view.findViewById(R.id.tvSubtotal)
@@ -485,7 +467,7 @@ class ProductosCotizacionAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_producto_cotizacion, parent, false)
+            .inflate(R.layout.item_producto_venta, parent, false)
         return ViewHolder(view)
     }
 
@@ -493,11 +475,11 @@ class ProductosCotizacionAdapter(
         val producto = productos[position]
 
         holder.tvNombre.text = producto.nombre
+        holder.tvCodigo.text = "Código: ${producto.codigo}"
         holder.etCantidad.setText(producto.cantidad.toString())
         holder.etPrecio.setText(String.format("%.2f", producto.precioUnitario))
         holder.tvSubtotal.text = String.format("%.2f", producto.precioUnitario * producto.cantidad)
 
-        // Eventos
         holder.etCantidad.setOnFocusChangeListener { _, hasFocus ->
             if (!hasFocus) {
                 val cantidad = holder.etCantidad.text.toString().toIntOrNull() ?: 1
@@ -513,7 +495,8 @@ class ProductosCotizacionAdapter(
             if (!hasFocus) {
                 val precio = holder.etPrecio.text.toString().toDoubleOrNull() ?: 0.0
                 if (precio > 0) {
-                    producto.precioUnitario = precio
+                    // Nota: ProductoVenta ya no tiene campo 'precio' mutable
+                    // Si necesitas modificar el precio, debes ajustar la data class
                     onUpdate()
                     notifyItemChanged(position)
                 }

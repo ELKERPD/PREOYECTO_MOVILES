@@ -1,152 +1,305 @@
 package com.example.moviles
 
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.*
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.*
 import org.json.JSONObject
-import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 
 class DatosSunatActivity : AppCompatActivity() {
 
-    private lateinit var etUsuarioSOL: EditText
-    private lateinit var etClaveSOL: EditText
-    private lateinit var etClientID: EditText
+    private lateinit var progressBar: ProgressBar
+    private lateinit var scrollView: ScrollView
+    private lateinit var btnVolver: Button
+    private lateinit var btnActualizar: Button
+    private lateinit var tvMensaje: TextView
+
+    // Campos SUNAT
+    private lateinit var etUsuarioSol: EditText
+    private lateinit var etClaveSol: EditText
+    private lateinit var etClientId: EditText
     private lateinit var etClientSecret: EditText
     private lateinit var etClaveCertificado: EditText
-    private lateinit var spinnerModo: Spinner
-    private lateinit var etEndpoint: EditText
+    private lateinit var etEndpointSunat: EditText
+    private lateinit var spinnerModoEnvio: Spinner
+    private lateinit var tvCertificadoActual: TextView
+    private lateinit var tvTokenSunat: TextView
+    private lateinit var tvTokenExpira: TextView
 
-    private lateinit var btnSeleccionarCert: Button
-    private lateinit var btnGuardar: Button
-    private lateinit var progress: ProgressBar
-
-    private var certificadoUri: Uri? = null
-    private val apiUrl = "http://10.0.2.2/PROYECTO_ERP/API_RES_TECNODESARROLLOPEREZ/datos_sunat_98765.php"
-
-    private val seleccionarCertLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) {
-        certificadoUri = it
-        Toast.makeText(this, "Certificado seleccionado ✅", Toast.LENGTH_SHORT).show()
-    }
+    // Campos SaaS
+    private lateinit var etApiKeyOpenai: EditText
+    private lateinit var etWebhookEndpoint: EditText
+    private lateinit var etWebhookToken: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_datos_sunat)
 
-        etUsuarioSOL = findViewById(R.id.etUsuarioSOL)
-        etClaveSOL = findViewById(R.id.etClaveSOL)
-        etClientID = findViewById(R.id.etClientID)
+        inicializarVistas()
+        configurarSpinner()
+
+        btnVolver.setOnClickListener {
+            finish()
+        }
+
+        btnActualizar.setOnClickListener {
+            actualizarDatosSunat()
+        }
+
+        cargarDatosSunat()
+    }
+
+    private fun inicializarVistas() {
+        progressBar = findViewById(R.id.progressBar)
+        scrollView = findViewById(R.id.scrollView)
+        btnVolver = findViewById(R.id.btnVolver)
+        btnActualizar = findViewById(R.id.btnActualizar)
+        tvMensaje = findViewById(R.id.tvMensaje)
+
+        etUsuarioSol = findViewById(R.id.etUsuarioSol)
+        etClaveSol = findViewById(R.id.etClaveSol)
+        etClientId = findViewById(R.id.etClientId)
         etClientSecret = findViewById(R.id.etClientSecret)
         etClaveCertificado = findViewById(R.id.etClaveCertificado)
-        spinnerModo = findViewById(R.id.spinnerModoEnvio)
-        etEndpoint = findViewById(R.id.etEndpointSunat)
-        btnSeleccionarCert = findViewById(R.id.btnSeleccionarCertificado)
-        btnGuardar = findViewById(R.id.btnGuardarSunat)
-        progress = findViewById(R.id.progressSunat)
+        etEndpointSunat = findViewById(R.id.etEndpointSunat)
+        spinnerModoEnvio = findViewById(R.id.spinnerModoEnvio)
+        tvCertificadoActual = findViewById(R.id.tvCertificadoActual)
+        tvTokenSunat = findViewById(R.id.tvTokenSunat)
+        tvTokenExpira = findViewById(R.id.tvTokenExpira)
 
-        ArrayAdapter.createFromResource(
-            this,
-            R.array.modo_envio_array,
-            android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            spinnerModo.adapter = adapter
-        }
-
-        btnSeleccionarCert.setOnClickListener { seleccionarCertLauncher.launch("*/*") }
-        btnGuardar.setOnClickListener { guardarDatos() }
-
-        obtenerDatos()
+        etApiKeyOpenai = findViewById(R.id.etApiKeyOpenai)
+        etWebhookEndpoint = findViewById(R.id.etWebhookEndpoint)
+        etWebhookToken = findViewById(R.id.etWebhookToken)
     }
 
-    private fun obtenerDatos() {
-        progress.visibility = android.view.View.VISIBLE
-        val token = getSharedPreferences("datos_app", Context.MODE_PRIVATE).getString("token", null) ?: return
+    private fun configurarSpinner() {
+        val modos = arrayOf("Beta (Pruebas)", "Producción")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, modos)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerModoEnvio.adapter = adapter
+    }
+
+    private fun cargarDatosSunat() {
+        progressBar.visibility = View.VISIBLE
+        scrollView.visibility = View.GONE
+        tvMensaje.visibility = View.GONE
+
+        val prefs = getSharedPreferences("datos_app", Context.MODE_PRIVATE)
+        val token = prefs.getString("token", "") ?: ""
+        val idEmpresa = prefs.getInt("id_empresa", 0)
+
+        if (token.isEmpty() || idEmpresa == 0) {
+            mostrarError("Datos de sesión no encontrados")
+            return
+        }
 
         CoroutineScope(Dispatchers.IO).launch {
+            var conn: HttpURLConnection? = null
+
             try {
-                val conn = URL(apiUrl).openConnection() as HttpURLConnection
+                val url = URL("https://sercon-aje.com/API_APP_MOVIL/API_RES_TECNODESARROLLOPEREZ/datos_sunat_98765.php?token=$token&id_empresa=$idEmpresa")
+                conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "GET"
-                conn.setRequestProperty("Authorization", "Bearer $token")
+                conn.connectTimeout = 15000
+                conn.readTimeout = 10000
 
-                val jsonResp = JSONObject(conn.inputStream.bufferedReader().readText())
-                val data = jsonResp.getJSONObject("data")
+                val responseCode = conn.responseCode
+                val responseText = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    conn.inputStream.bufferedReader().use { it.readText() }
+                } else {
+                    conn.errorStream?.bufferedReader()?.use { it.readText() }
+                        ?: "Error sin mensaje"
+                }
 
                 withContext(Dispatchers.Main) {
-                    progress.visibility = android.view.View.GONE
-                    etUsuarioSOL.setText(data.getString("usuario_sol"))
-                    etClaveSOL.setText(data.getString("clave_sol"))
-                    etClientID.setText(data.getString("client_id"))
-                    etClientSecret.setText(data.getString("client_secret"))
-                    etClaveCertificado.setText(data.getString("clave_certificado"))
-                    spinnerModo.setSelection(if (data.getString("modo_envio") == "produccion") 1 else 0)
-                    etEndpoint.setText(data.getString("endpoint_sunat"))
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        try {
+                            val json = JSONObject(responseText)
+
+                            if (json.getBoolean("success")) {
+                                val data = json.getJSONObject("data")
+                                mostrarDatos(data)
+                            } else {
+                                mostrarError(json.optString("mensaje", "Error desconocido"))
+                            }
+
+                        } catch (e: Exception) {
+                            mostrarError("Error al procesar datos: ${e.message}")
+                        }
+                    } else {
+                        mostrarError("Error del servidor: $responseCode")
+                    }
                 }
 
             } catch (e: Exception) {
-                runOnUiThread { progress.visibility = android.view.View.GONE }
+                withContext(Dispatchers.Main) {
+                    mostrarError("Error de conexión: ${e.message}")
+                }
+            } finally {
+                conn?.disconnect()
             }
         }
     }
 
-    private fun guardarDatos() {
-        val token = getSharedPreferences("datos_app", Context.MODE_PRIVATE).getString("token", null) ?: return
-        progress.visibility = android.view.View.VISIBLE
+    private fun mostrarDatos(data: JSONObject) {
+        progressBar.visibility = View.GONE
+        scrollView.visibility = View.VISIBLE
+
+        // Datos SUNAT
+        etUsuarioSol.setText(data.optString("usuario_sol", ""))
+        etClaveSol.setText(data.optString("clave_sol", ""))
+        etClientId.setText(data.optString("client_id", ""))
+        etClientSecret.setText(data.optString("client_secret", ""))
+        etClaveCertificado.setText(data.optString("clave_certificado", ""))
+        etEndpointSunat.setText(data.optString("endpoint_sunat", ""))
+
+        // Modo envío
+        val modoEnvio = data.optString("modo_envio", "beta")
+        spinnerModoEnvio.setSelection(if (modoEnvio == "produccion") 1 else 0)
+
+        // Certificado
+        val certificado = data.optString("certificado", "")
+        tvCertificadoActual.text = if (certificado.isNotEmpty()) {
+            "📄 $certificado"
+        } else {
+            "No hay certificado cargado"
+        }
+
+        // Token SUNAT
+        val tokenSunat = data.optString("token_sunat", "")
+        tvTokenSunat.text = if (tokenSunat.isNotEmpty()) {
+            "Token: ${tokenSunat.take(30)}..."
+        } else {
+            "No generado"
+        }
+
+        val tokenExpira = data.optString("token_expira", "")
+        tvTokenExpira.text = if (tokenExpira.isNotEmpty()) {
+            "Expira: $tokenExpira"
+        } else {
+            "N/A"
+        }
+
+        // SaaS
+        etApiKeyOpenai.setText(data.optString("api_key_openai", ""))
+        etWebhookEndpoint.setText(data.optString("webhook_endpoint", ""))
+        etWebhookToken.setText(data.optString("webhook_token_seguridad", ""))
+    }
+
+    private fun actualizarDatosSunat() {
+        val usuarioSol = etUsuarioSol.text.toString().trim()
+        val claveSol = etClaveSol.text.toString().trim()
+        val clientId = etClientId.text.toString().trim()
+        val clientSecret = etClientSecret.text.toString().trim()
+        val claveCertificado = etClaveCertificado.text.toString().trim()
+        val endpointSunat = etEndpointSunat.text.toString().trim()
+        val modoEnvio = if (spinnerModoEnvio.selectedItemPosition == 0) "beta" else "produccion"
+
+        val apiKeyOpenai = etApiKeyOpenai.text.toString().trim()
+        val webhookEndpoint = etWebhookEndpoint.text.toString().trim()
+        val webhookToken = etWebhookToken.text.toString().trim()
+
+        if (usuarioSol.isEmpty() || claveSol.isEmpty()) {
+            Toast.makeText(this, "Usuario y Clave SOL son obligatorios", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        progressBar.visibility = View.VISIBLE
+        btnActualizar.isEnabled = false
+
+        val prefs = getSharedPreferences("datos_app", Context.MODE_PRIVATE)
+        val token = prefs.getString("token", "") ?: ""
+        val idEmpresa = prefs.getInt("id_empresa", 0)
 
         CoroutineScope(Dispatchers.IO).launch {
+            var conn: HttpURLConnection? = null
+
             try {
-                val boundary = "----AndroidBoundary${System.currentTimeMillis()}"
-                val conn = URL(apiUrl).openConnection() as HttpURLConnection
+                val url = URL("https://sercon-aje.com/API_APP_MOVIL/API_RES_TECNODESARROLLOPEREZ/datos_sunat_98765.php")
+                conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "POST"
-                conn.setRequestProperty("Authorization", "Bearer $token")
-                conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
+                conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
                 conn.doOutput = true
+                conn.connectTimeout = 15000
+                conn.readTimeout = 10000
 
-                val output = DataOutputStream(conn.outputStream)
+                val postData = "token=$token" +
+                        "&id_empresa=$idEmpresa" +
+                        "&usuario_sol=$usuarioSol" +
+                        "&clave_sol=$claveSol" +
+                        "&client_id=$clientId" +
+                        "&client_secret=$clientSecret" +
+                        "&clave_certificado=$claveCertificado" +
+                        "&modo_envio=$modoEnvio" +
+                        "&endpoint_sunat=$endpointSunat" +
+                        "&api_key_openai=$apiKeyOpenai" +
+                        "&webhook_endpoint=$webhookEndpoint" +
+                        "&webhook_token_seguridad=$webhookToken"
 
-                fun writeField(name: String, value: String) {
-                    output.writeBytes("--$boundary\r\n")
-                    output.writeBytes("Content-Disposition: form-data; name=\"$name\"\r\n\r\n$value\r\n")
+                conn.outputStream.use { os ->
+                    os.write(postData.toByteArray(Charsets.UTF_8))
                 }
 
-                writeField("usuario_sol", etUsuarioSOL.text.toString())
-                writeField("clave_sol", etClaveSOL.text.toString())
-                writeField("client_id", etClientID.text.toString())
-                writeField("client_secret", etClientSecret.text.toString())
-                writeField("clave_certificado", etClaveCertificado.text.toString())
-                writeField("modo_envio", spinnerModo.selectedItem.toString())
-                writeField("endpoint_sunat", etEndpoint.text.toString())
-
-                certificadoUri?.let {
-                    val bytes = contentResolver.openInputStream(it)!!.readBytes()
-                    output.writeBytes("--$boundary\r\n")
-                    output.writeBytes("Content-Disposition: form-data; name=\"certificado\"; filename=\"cert.pfx\"\r\n")
-                    output.writeBytes("Content-Type: application/octet-stream\r\n\r\n")
-                    output.write(bytes)
-                    output.writeBytes("\r\n")
+                val responseCode = conn.responseCode
+                val responseText = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    conn.inputStream.bufferedReader().use { it.readText() }
+                } else {
+                    conn.errorStream?.bufferedReader()?.use { it.readText() }
+                        ?: "Error sin mensaje"
                 }
-
-                output.writeBytes("--$boundary--\r\n")
-                output.flush()
-                output.close()
-
-                val json = JSONObject(conn.inputStream.bufferedReader().readText())
 
                 withContext(Dispatchers.Main) {
-                    progress.visibility = android.view.View.GONE
-                    Toast.makeText(this@DatosSunatActivity, json.getString("mensaje"), Toast.LENGTH_LONG).show()
+                    progressBar.visibility = View.GONE
+                    btnActualizar.isEnabled = true
+
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        try {
+                            val json = JSONObject(responseText)
+
+                            if (json.getBoolean("success")) {
+                                Toast.makeText(
+                                    applicationContext,
+                                    json.optString("mensaje", "Datos actualizados"),
+                                    Toast.LENGTH_LONG
+                                ).show()
+
+                                cargarDatosSunat()
+                            } else {
+                                tvMensaje.text = json.optString("mensaje", "Error al actualizar")
+                                tvMensaje.visibility = View.VISIBLE
+                            }
+
+                        } catch (e: Exception) {
+                            tvMensaje.text = "Error al procesar respuesta: ${e.message}"
+                            tvMensaje.visibility = View.VISIBLE
+                        }
+                    } else {
+                        tvMensaje.text = "Error del servidor: $responseCode"
+                        tvMensaje.visibility = View.VISIBLE
+                    }
                 }
 
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    progress.visibility = android.view.View.GONE
-                    Toast.makeText(this@DatosSunatActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                    progressBar.visibility = View.GONE
+                    btnActualizar.isEnabled = true
+                    tvMensaje.text = "Error de conexión: ${e.message}"
+                    tvMensaje.visibility = View.VISIBLE
                 }
+            } finally {
+                conn?.disconnect()
             }
         }
+    }
+
+    private fun mostrarError(mensaje: String) {
+        progressBar.visibility = View.GONE
+        scrollView.visibility = View.GONE
+        tvMensaje.visibility = View.VISIBLE
+        tvMensaje.text = mensaje
     }
 }

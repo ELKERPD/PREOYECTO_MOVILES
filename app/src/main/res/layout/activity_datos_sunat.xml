@@ -1,124 +1,585 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0F172A"
-    android:padding="20dp">
+    android:orientation="vertical"
+    android:background="#0F1419">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
+    <!-- Header -->
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        app:cardBackgroundColor="#1A1F26"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="0dp">
 
-        <!-- Título -->
-        <TextView
-            android:text="Configuración SUNAT"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="#F8FAFC"
-            android:layout_marginBottom="22dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <!-- Usuario SOL -->
-        <EditText
-            android:id="@+id/etUsuarioSOL"
-            style="@style/InputBox"
-            android:hint="Usuario SOL"
-            android:layout_marginBottom="14dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <!-- Clave SOL -->
-        <EditText
-            android:id="@+id/etClaveSOL"
-            style="@style/InputBox"
-            android:hint="Clave SOL"
-            android:inputType="textPassword"
-            android:layout_marginBottom="14dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <!-- Client ID -->
-        <EditText
-            android:id="@+id/etClientID"
-            style="@style/InputBox"
-            android:hint="Client ID"
-            android:layout_marginBottom="14dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <!-- Client Secret -->
-        <EditText
-            android:id="@+id/etClientSecret"
-            style="@style/InputBox"
-            android:hint="Client Secret"
-            android:inputType="textPassword"
-            android:layout_marginBottom="14dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <!-- Clave Certificado -->
-        <EditText
-            android:id="@+id/etClaveCertificado"
-            style="@style/InputBox"
-            android:hint="Clave Certificado (.pfx)"
-            android:layout_marginBottom="14dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <!-- Modo -->
-        <Spinner
-            android:id="@+id/spinnerModoEnvio"
-            android:background="@drawable/spinner_bg"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:minHeight="48dp"
-            android:layout_marginBottom="14dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <!-- Endpoint -->
-        <EditText
-            android:id="@+id/etEndpointSunat"
-            style="@style/InputBox"
-            android:hint="Endpoint SUNAT"
-            android:layout_marginBottom="18dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <!-- Botón seleccionar certificado -->
-        <Button
-            android:id="@+id/btnSeleccionarCertificado"
-            android:text="Seleccionar Certificado (.pfx)"
-            android:backgroundTint="#334155"
-            android:textColor="#F8FAFC"
-            android:textStyle="bold"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="14dp"
-            android:layout_marginBottom="12dp" />
+            android:orientation="vertical"
+            android:padding="20dp">
 
-        <!-- Botón guardar configuración -->
-        <Button
-            android:id="@+id/btnGuardarSunat"
-            android:text="Guardar Configuración"
-            android:textStyle="bold"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="#3B82F6"
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnVolver"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:contentDescription="Volver"
+                    android:padding="0dp"
+                    android:insetLeft="0dp"
+                    android:insetTop="0dp"
+                    android:insetRight="0dp"
+                    android:insetBottom="0dp"
+                    app:icon="@android:drawable/ic_menu_revert"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="20dp"
+                    app:iconTint="#FFFFFF"
+                    app:cornerRadius="24dp"
+                    app:backgroundTint="#2C3139"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginStart="16dp"
+                    android:text="Configuración SUNAT"
+                    android:textColor="#FFFFFF"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@android:drawable/ic_dialog_info"
+                    app:tint="#3498DB" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Credenciales de facturación electrónica"
+                android:textColor="#7F8C9A"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"
+                android:layout_marginStart="56dp" />
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Contenedor Principal -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- ScrollView -->
+        <ScrollView
+            android:id="@+id/scrollView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="14dp" />
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:visibility="gone">
 
-        <!-- Indicador de carga -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- DATOS SUNAT SOL -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CREDENCIALES SOL"
+                    android:textColor="#7F8C9A"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.15"
+                    android:layout_marginBottom="12dp" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#1E242A">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- Usuario SOL -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Usuario SOL"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/etUsuarioSol"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
+                            android:background="@android:drawable/edit_text"
+                            android:backgroundTint="#2C3139"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:hint="20123456789MODDATOS"
+                            android:textColorHint="#7F8C9A"
+                            android:inputType="text" />
+
+                        <!-- Clave SOL -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Clave SOL"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/etClaveSol"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
+                            android:background="@android:drawable/edit_text"
+                            android:backgroundTint="#2C3139"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:hint="••••••••"
+                            android:textColorHint="#7F8C9A"
+                            android:inputType="textPassword" />
+
+                        <!-- Client ID -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Client ID"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/etClientId"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
+                            android:background="@android:drawable/edit_text"
+                            android:backgroundTint="#2C3139"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:hint="client_id_sunat"
+                            android:textColorHint="#7F8C9A"
+                            android:inputType="text" />
+
+                        <!-- Client Secret -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Client Secret"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/etClientSecret"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@android:drawable/edit_text"
+                            android:backgroundTint="#2C3139"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:hint="••••••••••••"
+                            android:textColorHint="#7F8C9A"
+                            android:inputType="textPassword" />
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- CERTIFICADO DIGITAL -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CERTIFICADO DIGITAL"
+                    android:textColor="#7F8C9A"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.15"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="12dp" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#1E242A">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- Certificado Actual -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="@android:drawable/dialog_holo_dark_frame"
+                            android:backgroundTint="#2C3139"
+                            android:padding="12dp"
+                            android:layout_marginBottom="16dp">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@android:drawable/ic_menu_agenda"
+                                app:tint="#9B59B6" />
+
+                            <TextView
+                                android:id="@+id/tvCertificadoActual"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:layout_marginStart="12dp"
+                                android:text="No hay certificado cargado"
+                                android:textColor="#7F8C9A"
+                                android:textSize="12sp" />
+
+                        </LinearLayout>
+
+                        <!-- Clave del Certificado -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Clave del Certificado"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/etClaveCertificado"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@android:drawable/edit_text"
+                            android:backgroundTint="#2C3139"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:hint="••••••••"
+                            android:textColorHint="#7F8C9A"
+                            android:inputType="textPassword" />
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- CONFIGURACIÓN DE ENVÍO -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="CONFIGURACIÓN DE ENVÍO"
+                    android:textColor="#7F8C9A"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.15"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="12dp" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#1E242A">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- Modo de Envío -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Modo de Envío"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <Spinner
+                            android:id="@+id/spinnerModoEnvio"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
+                            android:background="@android:drawable/btn_dropdown"
+                            android:backgroundTint="#2C3139"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp" />
+
+                        <!-- Endpoint SUNAT -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Endpoint SUNAT"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/etEndpointSunat"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@android:drawable/edit_text"
+                            android:backgroundTint="#2C3139"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:hint="https://..."
+                            android:textColorHint="#7F8C9A"
+                            android:inputType="textUri" />
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- TOKEN SUNAT INFO -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#1E242A">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="16dp"
+                        android:gravity="center_vertical">
+
+                        <ImageView
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:src="@android:drawable/ic_lock_lock"
+                            app:tint="#F39C12"
+                            android:layout_marginEnd="16dp" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/tvTokenSunat"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Token: No generado"
+                                android:textColor="#FFFFFF"
+                                android:textSize="12sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/tvTokenExpira"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Expira: N/A"
+                                android:textColor="#7F8C9A"
+                                android:textSize="11sp"
+                                android:layout_marginTop="4dp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- CONFIGURACIÓN SAAS -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="INTEGRACIONES (OPCIONAL)"
+                    android:textColor="#7F8C9A"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:letterSpacing="0.15"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="12dp" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="4dp"
+                    app:cardBackgroundColor="#1E242A">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <!-- API Key OpenAI -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="API Key OpenAI"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/etApiKeyOpenai"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
+                            android:background="@android:drawable/edit_text"
+                            android:backgroundTint="#2C3139"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:hint="sk-..."
+                            android:textColorHint="#7F8C9A"
+                            android:inputType="textPassword" />
+
+                        <!-- Webhook Endpoint -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Webhook Endpoint"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/etWebhookEndpoint"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="8dp"
+                            android:layout_marginBottom="16dp"
+                            android:background="@android:drawable/edit_text"
+                            android:backgroundTint="#2C3139"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:hint="https://..."
+                            android:textColorHint="#7F8C9A"
+                            android:inputType="textUri" />
+
+                        <!-- Webhook Token -->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Webhook Token Seguridad"
+                            android:textColor="#FFFFFF"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/etWebhookToken"
+                            android:layout_width="match_parent"
+                            android:layout_height="48dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@android:drawable/edit_text"
+                            android:backgroundTint="#2C3139"
+                            android:paddingStart="12dp"
+                            android:paddingEnd="12dp"
+                            android:textColor="#FFFFFF"
+                            android:textSize="16sp"
+                            android:hint="••••••••"
+                            android:textColorHint="#7F8C9A"
+                            android:inputType="textPassword" />
+
+                    </LinearLayout>
+
+                </androidx.cardview.widget.CardView>
+
+                <!-- Botón Actualizar -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnActualizar"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:text="GUARDAR CONFIGURACIÓN"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:icon="@android:drawable/ic_menu_save"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:cornerRadius="12dp"
+                    app:backgroundTint="#3498DB"
+                    android:textColor="#FFFFFF"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginBottom="24dp"
+                    style="@style/Widget.MaterialComponents.Button.UnelevatedButton" />
+
+            </LinearLayout>
+
+        </ScrollView>
+
+        <!-- ProgressBar -->
         <ProgressBar
-            android:id="@+id/progressSunat"
-            android:visibility="gone"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginTop="18dp"
-            android:layout_gravity="center" />
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminateTint="#3498DB" />
 
-    </LinearLayout>
-</ScrollView>
+        <!-- Mensaje de Error -->
+        <TextView
+            android:id="@+id/tvMensaje"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Cargando datos..."
+            android:textColor="#7F8C9A"
+            android:textSize="16sp"
+            android:padding="20dp"
+            android:gravity="center"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+</LinearLayout>

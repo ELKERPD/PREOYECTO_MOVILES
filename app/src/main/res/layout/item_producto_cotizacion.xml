@@ -4,8 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="2dp">
+    app:cardCornerRadius="6dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="#FFFFFF">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,20 +14,13 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <!-- Código y Nombre -->
+        <!-- Nombre del Producto -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <TextView
-                android:id="@+id/tvCodigo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="COD-001"
-                android:textStyle="bold"
-                android:textSize="14sp"
-                android:layout_marginEnd="8dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="8dp">
 
             <TextView
                 android:id="@+id/tvNombre"
@@ -34,17 +28,62 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Nombre del Producto"
-                android:textSize="14sp"/>
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#333"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <Button
+                android:id="@+id/btnEliminar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:text="✕"
+                android:textSize="18sp"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="#DC3545"
+                android:padding="0dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:layout_marginStart="8dp" />
         </LinearLayout>
 
-        <!-- Precio, Cantidad, Subtotal -->
+        <!-- Fila: Cantidad y Precio -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="8dp"
-            android:weightSum="4">
+            android:layout_marginBottom="8dp">
 
+            <!-- Cantidad -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:layout_marginEnd="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Cantidad:"
+                    android:textSize="12sp"
+                    android:textColor="#666"
+                    android:layout_marginBottom="4dp" />
+
+                <EditText
+                    android:id="@+id/etCantidad"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="1"
+                    android:inputType="number"
+                    android:textSize="14sp"
+                    android:padding="8dp"
+                    android:background="@android:drawable/edit_text"
+                    android:gravity="center" />
+            </LinearLayout>
+
+            <!-- Precio Unitario -->
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -52,78 +91,63 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Precio"
+                    android:text="Precio Unit. (S/):"
                     android:textSize="12sp"
-                    android:textColor="#666"/>
+                    android:textColor="#666"
+                    android:layout_marginBottom="4dp" />
 
                 <EditText
                     android:id="@+id/etPrecio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:hint="0.00"
                     android:inputType="numberDecimal"
                     android:textSize="14sp"
-                    android:padding="4dp"/>
+                    android:padding="8dp"
+                    android:background="@android:drawable/edit_text"
+                    android:gravity="center" />
             </LinearLayout>
+        </LinearLayout>
 
-            <LinearLayout
+        <!-- Subtotal -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#E0E0E0"
+            android:layout_marginVertical="4dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:layout_marginStart="4dp">
+                android:text="Subtotal:"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#333" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Cantidad"
-                    android:textSize="12sp"
-                    android:textColor="#666"/>
-
-                <EditText
-                    android:id="@+id/etCantidad"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:textSize="14sp"
-                    android:padding="4dp"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1.5"
-                android:orientation="vertical"
-                android:layout_marginStart="4dp">
+                android:text="S/ "
+                android:textSize="14sp"
+                android:textColor="#28A745" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Subtotal"
-                    android:textSize="12sp"
-                    android:textColor="#666"/>
-
-                <TextView
-                    android:id="@+id/tvSubtotal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="0.00"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#4CAF50"
-                    android:padding="4dp"/>
-            </LinearLayout>
-
-            <Button
-                android:id="@+id/btnEliminar"
-                android:layout_width="0dp"
+            <TextView
+                android:id="@+id/tvSubtotal"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="0.5"
-                android:text="🗑️"
-                android:backgroundTint="#F44336"
-                android:textSize="16sp"
-                android:layout_gravity="center_vertical"/>
+                android:text="0.00"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="#28A745" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -1,67 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="#0F172A">
+    android:background="@android:color/white">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp"
-        android:gravity="center_horizontal">
+        android:padding="24dp">
 
-        <!-- Espaciador superior -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="40dp" />
+        <!-- Logo o Imagen Superior -->
+        <ImageView
+            android:id="@+id/ivLogo"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="40dp"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/logo_app"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@null" />
 
-        <!-- Logo circular -->
-        <androidx.cardview.widget.CardView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            app:cardCornerRadius="50dp"
-            app:cardElevation="10dp"
-            app:cardBackgroundColor="#1E293B">
 
-            <ImageView
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_gravity="center"
-                android:src="@android:drawable/ic_dialog_info"
-                android:tint="#3B82F6"
-                android:contentDescription="Logo de la aplicación" />
-        </androidx.cardview.widget.CardView>
-
-        <!-- Título principal -->
+        <!-- Título Principal -->
         <TextView
+            android:id="@+id/tvTitulo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bienvenido de nuevo"
-            android:textSize="26sp"
+            android:layout_marginTop="16dp"
+            android:text="Bienvenido"
+            android:textColor="#212121"
+            android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="#F8FAFC"
-            android:layout_marginTop="24dp" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/ivLogo" />
 
         <!-- Subtítulo -->
         <TextView
+            android:id="@+id/tvSubtitulo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ingresa tus credenciales para continuar"
-            android:textSize="14sp"
-            android:textColor="#94A3B8"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="28dp" />
+            android:layout_marginTop="8dp"
+            android:text="Inicia sesión en tu cuenta"
+            android:textColor="#757575"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitulo" />
 
-        <!-- Contenedor principal -->
+        <!-- Card Container -->
         <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
+            android:id="@+id/cardLogin"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="10dp"
-            app:cardBackgroundColor="#1E293B">
+            android:layout_marginTop="32dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="4dp"
+            app:cardUseCompatPadding="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvSubtitulo">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -69,174 +72,142 @@
                 android:orientation="vertical"
                 android:padding="24dp">
 
-                <!-- Campo Usuario -->
+                <!-- Label Usuario -->
                 <TextView
+                    android:id="@+id/tvLabelUsuario"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Usuario"
-                    android:textColor="#94A3B8"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="8dp" />
+                    android:textColor="#424242"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
 
-                <LinearLayout
+                <!-- Campo Usuario -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilUsuario"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="14dp"
-                    android:gravity="center_vertical"
-                    android:background="@drawable/bg_input_box">
+                    android:layout_marginTop="8dp"
+                    android:hint="Ingresa tu usuario"
+                    app:boxStrokeColor="#1976D2"
+                    app:hintTextColor="#1976D2"
+                    app:startIconDrawable="@android:drawable/ic_menu_myplaces"
+                    app:startIconTint="#1976D2">
 
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@android:drawable/ic_menu_edit"
-                        android:tint="#64748B" />
-
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etUsuario"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="12dp"
-                        android:hint="Ingresa tu usuario"
-                        android:textColorHint="#475569"
-                        android:textColor="#F8FAFC"
-                        android:textSize="16sp"
-                        android:background="@android:color/transparent"
-                        android:inputType="textPersonName"
-                        android:importantForAutofill="yes" />
-                </LinearLayout>
+                        android:inputType="text"
+                        android:maxLines="1"
+                        android:textColor="#212121"
+                        android:textSize="16sp" />
 
-                <!-- Campo Contraseña -->
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Label Contraseña -->
                 <TextView
+                    android:id="@+id/tvLabelContrasena"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
                     android:text="Contraseña"
-                    android:textColor="#94A3B8"
-                    android:textSize="13sp"
-                    android:textStyle="bold"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="8dp" />
+                    android:textColor="#424242"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
 
-                <LinearLayout
+                <!-- Campo Contraseña -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/tilContrasena"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="14dp"
-                    android:gravity="center_vertical"
-                    android:background="@drawable/bg_input_box">
+                    android:layout_marginTop="8dp"
+                    android:hint="Ingresa tu contraseña"
+                    app:boxStrokeColor="#1976D2"
+                    app:endIconMode="password_toggle"
+                    app:endIconTint="#1976D2"
+                    app:hintTextColor="#1976D2"
+                    app:startIconDrawable="@android:drawable/ic_lock_idle_lock"
+                    app:startIconTint="#1976D2">
 
-                    <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@android:drawable/ic_lock_idle_lock"
-                        android:tint="#64748B" />
-
-                    <EditText
+                    <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etContrasena"
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_marginStart="12dp"
-                        android:hint="Ingresa tu contraseña"
-                        android:textColorHint="#475569"
-                        android:textColor="#F8FAFC"
-                        android:textSize="16sp"
-                        android:background="@android:color/transparent"
-                        android:inputType="textPassword" />
-                </LinearLayout>
+                        android:inputType="textPassword"
+                        android:maxLines="1"
+                        android:textColor="#212121"
+                        android:textSize="16sp" />
 
-                <!-- Campo Token oculto -->
-                <EditText
-                    android:id="@+id/etToken"
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:visibility="gone"
-                    android:text="1234567890" />
+                </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Botón Iniciar Sesión -->
-                <Button
-                    android:id="@+id/btnLogin"
-                    android:layout_width="match_parent"
-                    android:layout_height="56dp"
-                    android:text="Iniciar Sesión"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:backgroundTint="#3B82F6"
-                    android:drawableEnd="@android:drawable/ic_media_play"
-                    android:drawableTint="#FFFFFF"
-                    android:layout_marginTop="28dp"
-                    android:elevation="4dp" />
-
-                <!-- Mensaje de estado -->
+                <!-- Mensaje de Estado -->
                 <TextView
                     android:id="@+id/tvMensaje"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:textSize="13sp"
-                    android:padding="12dp"
                     android:layout_marginTop="16dp"
-                    android:textColor="#F8FAFC"
-                    android:visibility="gone" />
+                    android:gravity="center"
+                    android:minHeight="24dp"
+                    android:textColor="#D32F2F"
+                    android:textSize="14sp"
+                    tools:text="Mensaje de error o éxito" />
+
+                <!-- Botón Login -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnLogin"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="24dp"
+                    android:text="INICIAR SESIÓN"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:backgroundTint="#1976D2"
+                    app:cornerRadius="12dp"
+                    app:elevation="2dp"
+                    app:icon="@android:drawable/ic_menu_send"
+                    app:iconGravity="textStart"
+                    app:iconPadding="8dp"
+                    app:iconTint="@android:color/white" />
 
             </LinearLayout>
+
         </androidx.cardview.widget.CardView>
 
-        <!-- Separador con "o" -->
+        <!-- Footer -->
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/llFooter"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="24dp"
             android:gravity="center"
-            android:layout_marginTop="24dp">
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/cardLogin"
+            app:layout_constraintVertical_bias="1.0">
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#334155" />
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:contentDescription="Security"
+                android:src="@android:drawable/ic_lock_idle_lock"
+                app:tint="#9E9E9E" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="o"
-                android:textColor="#64748B"
-                android:textSize="12sp"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp" />
+                android:layout_marginStart="8dp"
+                android:text="Conexión segura y encriptada"
+                android:textColor="#9E9E9E"
+                android:textSize="12sp" />
 
-            <View
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="#334155" />
         </LinearLayout>
 
-        <!-- Enlace ayuda -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="¿Olvidaste tu contraseña?"
-            android:textColor="#3B82F6"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:layout_marginTop="20dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:padding="8dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <!-- Pie de página -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="© 2025 Tu Empresa. Todos los derechos reservados."
-            android:textColor="#475569"
-            android:textSize="11sp"
-            android:layout_marginTop="32dp"
-            android:gravity="center" />
-
-    </LinearLayout>
 </ScrollView>

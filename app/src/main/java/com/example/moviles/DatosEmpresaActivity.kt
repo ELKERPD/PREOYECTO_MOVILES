@@ -7,111 +7,141 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.*
 import org.json.JSONObject
-import java.io.IOException
 import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLEncoder
 
 class DatosEmpresaActivity : AppCompatActivity() {
 
+    private lateinit var progressBar: ProgressBar
+    private lateinit var scrollView: ScrollView
+    private lateinit var btnVolver: Button
+    private lateinit var btnActualizar: Button
+    private lateinit var tvMensaje: TextView
+
+    // Campos de datos
+    private lateinit var tvIdEmpresa: TextView
     private lateinit var etRuc: EditText
     private lateinit var etRazonSocial: EditText
     private lateinit var etNombreComercial: EditText
+    private lateinit var etNombres: EditText
+    private lateinit var etApellidos: EditText
     private lateinit var etCorreo: EditText
     private lateinit var etDireccion: EditText
     private lateinit var etCelular: EditText
     private lateinit var etIgv: EditText
-    private lateinit var btnGuardar: Button
-    private lateinit var progress: ProgressBar
 
-    private val apiUrl = "http://10.0.2.2/PROYECTO_ERP/API_RES_TECNODESARROLLOPEREZ/datos_empresa_54321.php"
+    // Datos de solo lectura
+    private lateinit var tvEstado: TextView
+    private lateinit var tvFechaCreacion: TextView
+    private lateinit var tvFechaVencimiento: TextView
+    private lateinit var tvFechaCorte: TextView
+    private lateinit var tvTipoPlan: TextView
+    private lateinit var tvMaxUsuarios: TextView
+    private lateinit var tvUsuariosActivos: TextView
+    private lateinit var tvEspacioTotal: TextView
+    private lateinit var tvEspacioUsado: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_datos_empresa)
 
+        inicializarVistas()
+
+        btnVolver.setOnClickListener {
+            finish()
+        }
+
+        btnActualizar.setOnClickListener {
+            actualizarDatosEmpresa()
+        }
+
+        cargarDatosEmpresa()
+    }
+
+    private fun inicializarVistas() {
+        progressBar = findViewById(R.id.progressBar)
+        scrollView = findViewById(R.id.scrollView)
+        btnVolver = findViewById(R.id.btnVolver)
+        btnActualizar = findViewById(R.id.btnActualizar)
+        tvMensaje = findViewById(R.id.tvMensaje)
+
+        tvIdEmpresa = findViewById(R.id.tvIdEmpresa)
         etRuc = findViewById(R.id.etRuc)
         etRazonSocial = findViewById(R.id.etRazonSocial)
         etNombreComercial = findViewById(R.id.etNombreComercial)
+        etNombres = findViewById(R.id.etNombres)
+        etApellidos = findViewById(R.id.etApellidos)
         etCorreo = findViewById(R.id.etCorreo)
         etDireccion = findViewById(R.id.etDireccion)
         etCelular = findViewById(R.id.etCelular)
         etIgv = findViewById(R.id.etIgv)
-        btnGuardar = findViewById(R.id.btnGuardarEmpresa)
-        progress = findViewById(R.id.progressEmpresa)
 
-        btnGuardar.setOnClickListener { guardarDatos() }
-
-        obtenerDatosEmpresa()
+        tvEstado = findViewById(R.id.tvEstado)
+        tvFechaCreacion = findViewById(R.id.tvFechaCreacion)
+        tvFechaVencimiento = findViewById(R.id.tvFechaVencimiento)
+        tvFechaCorte = findViewById(R.id.tvFechaCorte)
+        tvTipoPlan = findViewById(R.id.tvTipoPlan)
+        tvMaxUsuarios = findViewById(R.id.tvMaxUsuarios)
+        tvUsuariosActivos = findViewById(R.id.tvUsuariosActivos)
+        tvEspacioTotal = findViewById(R.id.tvEspacioTotal)
+        tvEspacioUsado = findViewById(R.id.tvEspacioUsado)
     }
 
-    private fun setCargando(cargando: Boolean) {
-        progress.visibility = if (cargando) View.VISIBLE else View.GONE
-        btnGuardar.isEnabled = !cargando
-    }
+    private fun cargarDatosEmpresa() {
+        progressBar.visibility = View.VISIBLE
+        scrollView.visibility = View.GONE
+        tvMensaje.visibility = View.GONE
 
-    private fun obtenerDatosEmpresa() {
-        setCargando(true)
-        val token = getSharedPreferences("datos_app", Context.MODE_PRIVATE).getString("token", null)
+        val prefs = getSharedPreferences("datos_app", Context.MODE_PRIVATE)
+        val token = prefs.getString("token", "") ?: ""
+        val idEmpresa = prefs.getInt("id_empresa", 0)
 
-        if (token == null) {
-            Toast.makeText(this, "Token no encontrado", Toast.LENGTH_LONG).show()
-            setCargando(false)
+        if (token.isEmpty() || idEmpresa == 0) {
+            mostrarError("Datos de sesión no encontrados")
             return
         }
 
         CoroutineScope(Dispatchers.IO).launch {
             var conn: HttpURLConnection? = null
+
             try {
-                conn = URL(apiUrl).openConnection() as HttpURLConnection
+                val url = URL("https://sercon-aje.com/API_APP_MOVIL/API_RES_TECNODESARROLLOPEREZ/datos_empresa_54321.php?token=$token&id_empresa=$idEmpresa")
+                conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "GET"
-                conn.setRequestProperty("Authorization", "Bearer $token")
-                conn.setRequestProperty("Accept", "application/json")
                 conn.connectTimeout = 15000
                 conn.readTimeout = 10000
 
                 val responseCode = conn.responseCode
-                val responseText: String
-
-                // === ✅ CORRECCIÓN: LEER EL STREAM CORRECTO ===
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    responseText = conn.inputStream.bufferedReader().use { it.readText() }
+                val responseText = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    conn.inputStream.bufferedReader().use { it.readText() }
                 } else {
-                    responseText = conn.errorStream?.bufferedReader()?.use { it.readText() } ?: "Error sin mensaje"
+                    conn.errorStream?.bufferedReader()?.use { it.readText() }
+                        ?: "Error sin mensaje"
                 }
 
                 withContext(Dispatchers.Main) {
-                    setCargando(false)
                     if (responseCode == HttpURLConnection.HTTP_OK) {
                         try {
                             val json = JSONObject(responseText)
-                            // Asumiendo que el GET devuelve el objeto directamente
-                            // Si también tiene un "success", habría que anidarlo
-                            etRuc.setText(json.getString("ruc"))
-                            etRazonSocial.setText(json.getString("razon_social"))
-                            etNombreComercial.setText(json.getString("nombre_comercial"))
-                            etCorreo.setText(json.getString("correo"))
-                            etDireccion.setText(json.getString("direccion"))
-                            etCelular.setText(json.getString("celular"))
-                            etIgv.setText(json.getString("igv"))
+
+                            if (json.getBoolean("success")) {
+                                val data = json.getJSONObject("data")
+                                mostrarDatos(data)
+                            } else {
+                                mostrarError(json.optString("mensaje", "Error desconocido"))
+                            }
+
                         } catch (e: Exception) {
-                            Toast.makeText(applicationContext, "Error al procesar datos: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                            mostrarError("Error al procesar datos: ${e.message}")
                         }
                     } else {
-                        // Mostrar error del servidor (ej. 401, 404)
-                        Toast.makeText(applicationContext, "Error $responseCode: $responseText", Toast.LENGTH_LONG).show()
+                        mostrarError("Error del servidor: $responseCode")
                     }
                 }
 
-            } catch (e: IOException) {
-                withContext(Dispatchers.Main) {
-                    setCargando(false)
-                    Toast.makeText(applicationContext, "Error de red: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-                }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    setCargando(false)
-                    Toast.makeText(applicationContext, "Error: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                    mostrarError("Error de conexión: ${e.message}")
                 }
             } finally {
                 conn?.disconnect()
@@ -119,100 +149,150 @@ class DatosEmpresaActivity : AppCompatActivity() {
         }
     }
 
-    private fun guardarDatos() {
-        val token = getSharedPreferences("datos_app", Context.MODE_PRIVATE).getString("token", null)
-        if (token == null) {
-            Toast.makeText(this, "Token no encontrado", Toast.LENGTH_LONG).show()
+    private fun mostrarDatos(data: JSONObject) {
+        progressBar.visibility = View.GONE
+        scrollView.visibility = View.VISIBLE
+
+        // Datos editables
+        tvIdEmpresa.text = "ID: ${data.optInt("id_empresa")}"
+        etRuc.setText(data.optString("ruc", ""))
+        etRazonSocial.setText(data.optString("razon_social", ""))
+        etNombreComercial.setText(data.optString("nombre_comercial", ""))
+        etNombres.setText(data.optString("nombres", ""))
+        etApellidos.setText(data.optString("apellidos", ""))
+        etCorreo.setText(data.optString("correo", ""))
+        etDireccion.setText(data.optString("direccion", ""))
+        etCelular.setText(data.optString("celular", ""))
+        etIgv.setText(data.optString("igv", "18.00"))
+
+        // Datos de solo lectura
+        val estado = data.optInt("estado", 0)
+        tvEstado.text = if (estado == 1) "✓ ACTIVA" else "✗ INACTIVA"
+        tvEstado.setTextColor(if (estado == 1) 0xFF2ECC71.toInt() else 0xFFE74C3C.toInt())
+
+        tvFechaCreacion.text = data.optString("fecha_creacion", "N/A")
+        tvFechaVencimiento.text = data.optString("fecha_vencimiento", "N/A")
+        tvFechaCorte.text = data.optString("fecha_corte", "N/A")
+        tvTipoPlan.text = data.optString("tipo_plan", "N/A")
+        tvMaxUsuarios.text = "${data.optInt("max_usuarios", 0)}"
+        tvUsuariosActivos.text = "${data.optInt("usuarios_activos", 0)}"
+        tvEspacioTotal.text = "${data.optInt("espacio_total_mb", 0)} MB"
+        tvEspacioUsado.text = "${data.optInt("espacio_usado_mb", 0)} MB"
+    }
+
+    private fun actualizarDatosEmpresa() {
+        val ruc = etRuc.text.toString().trim()
+        val razonSocial = etRazonSocial.text.toString().trim()
+        val nombreComercial = etNombreComercial.text.toString().trim()
+        val nombres = etNombres.text.toString().trim()
+        val apellidos = etApellidos.text.toString().trim()
+        val correo = etCorreo.text.toString().trim()
+        val direccion = etDireccion.text.toString().trim()
+        val celular = etCelular.text.toString().trim()
+        val igv = etIgv.text.toString().trim()
+
+        if (razonSocial.isEmpty() || ruc.isEmpty()) {
+            Toast.makeText(this, "RUC y Razón Social son obligatorios", Toast.LENGTH_SHORT).show()
             return
         }
 
-        setCargando(true)
+        progressBar.visibility = View.VISIBLE
+        btnActualizar.isEnabled = false
 
-        // Leer los datos en el Hilo Principal antes de la corutina
-        val ruc = etRuc.text.toString()
-        val razonSocial = etRazonSocial.text.toString()
-        val nombreComercial = etNombreComercial.text.toString()
-        val correo = etCorreo.text.toString()
-        val direccion = etDireccion.text.toString()
-        val celular = etCelular.text.toString()
-        val igv = etIgv.text.toString()
-
-        // Validación simple
-        if (ruc.isEmpty() || razonSocial.isEmpty() || igv.isEmpty()) {
-            Toast.makeText(this, "RUC, Razón Social e IGV son obligatorios", Toast.LENGTH_SHORT).show()
-            setCargando(false)
-            return
-        }
-
+        val prefs = getSharedPreferences("datos_app", Context.MODE_PRIVATE)
+        val token = prefs.getString("token", "") ?: ""
+        val idEmpresa = prefs.getInt("id_empresa", 0)
 
         CoroutineScope(Dispatchers.IO).launch {
             var conn: HttpURLConnection? = null
-            try {
-                // === ✅ CORRECCIÓN 1: CODIFICAR DATOS PARA URL ===
-                val postData = StringBuilder()
-                postData.append("ruc=").append(URLEncoder.encode(ruc, "UTF-8"))
-                postData.append("&razon_social=").append(URLEncoder.encode(razonSocial, "UTF-8"))
-                postData.append("&nombre_comercial=").append(URLEncoder.encode(nombreComercial, "UTF-8"))
-                postData.append("&correo=").append(URLEncoder.encode(correo, "UTF-8"))
-                postData.append("&direccion=").append(URLEncoder.encode(direccion, "UTF-8"))
-                postData.append("&celular=").append(URLEncoder.encode(celular, "UTF-8"))
-                postData.append("&igv=").append(URLEncoder.encode(igv, "UTF-8"))
 
-                conn = URL(apiUrl).openConnection() as HttpURLConnection
+            try {
+                val url = URL("https://sercon-aje.com/API_APP_MOVIL/API_RES_TECNODESARROLLOPEREZ/datos_empresa_54321.php")
+                conn = url.openConnection() as HttpURLConnection
                 conn.requestMethod = "POST"
-                conn.setRequestProperty("Authorization", "Bearer $token")
-                // === ✅ CORRECCIÓN 2: DEFINIR EL CONTENT-TYPE ===
                 conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
-                conn.setRequestProperty("Accept", "application/json")
+                conn.doOutput = true
                 conn.connectTimeout = 15000
                 conn.readTimeout = 10000
-                conn.doOutput = true
+
+                val postData = "token=$token" +
+                        "&id_empresa=$idEmpresa" +
+                        "&ruc=$ruc" +
+                        "&razon_social=$razonSocial" +
+                        "&nombre_comercial=$nombreComercial" +
+                        "&nombres=$nombres" +
+                        "&apellidos=$apellidos" +
+                        "&correo=$correo" +
+                        "&direccion=$direccion" +
+                        "&celular=$celular" +
+                        "&igv=$igv"
 
                 conn.outputStream.use { os ->
-                    os.write(postData.toString().toByteArray(Charsets.UTF_8))
+                    os.write(postData.toByteArray(Charsets.UTF_8))
                 }
 
                 val responseCode = conn.responseCode
-                val responseText: String
-
-                // === ✅ CORRECCIÓN 3: LEER EL STREAM CORRECTO ===
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    responseText = conn.inputStream.bufferedReader().use { it.readText() }
+                val responseText = if (responseCode == HttpURLConnection.HTTP_OK) {
+                    conn.inputStream.bufferedReader().use { it.readText() }
                 } else {
-                    responseText = conn.errorStream?.bufferedReader()?.use { it.readText() } ?: "Error sin mensaje"
+                    conn.errorStream?.bufferedReader()?.use { it.readText() }
+                        ?: "Error sin mensaje"
                 }
 
                 withContext(Dispatchers.Main) {
-                    setCargando(false)
-                    try {
-                        // El API siempre debe devolver un JSON, sea éxito o error
-                        val json = JSONObject(responseText)
-                        val mensaje = json.optString("mensaje", "Respuesta sin mensaje")
-                        Toast.makeText(applicationContext, mensaje, Toast.LENGTH_LONG).show()
+                    progressBar.visibility = View.GONE
+                    btnActualizar.isEnabled = true
 
-                        // Opcional: Si fue exitoso, volver a cargar los datos
-                        if (responseCode == HttpURLConnection.HTTP_OK && json.optBoolean("success", true)) {
-                            // Éxito, no es necesario hacer nada más que mostrar el toast
+                    if (responseCode == HttpURLConnection.HTTP_OK) {
+                        try {
+                            val json = JSONObject(responseText)
+
+                            if (json.getBoolean("success")) {
+                                Toast.makeText(
+                                    applicationContext,
+                                    json.optString("mensaje", "Datos actualizados"),
+                                    Toast.LENGTH_LONG
+                                ).show()
+
+                                // Actualizar SharedPreferences
+                                val editor = prefs.edit()
+                                editor.putString("razon_social", razonSocial)
+                                editor.putString("ruc", ruc)
+                                editor.apply()
+
+                                cargarDatosEmpresa()
+                            } else {
+                                tvMensaje.text = json.optString("mensaje", "Error al actualizar")
+                                tvMensaje.visibility = View.VISIBLE
+                            }
+
+                        } catch (e: Exception) {
+                            tvMensaje.text = "Error al procesar respuesta: ${e.message}"
+                            tvMensaje.visibility = View.VISIBLE
                         }
-
-                    } catch (e: Exception) {
-                        Toast.makeText(applicationContext, "Error al procesar respuesta: $responseText", Toast.LENGTH_LONG).show()
+                    } else {
+                        tvMensaje.text = "Error del servidor: $responseCode"
+                        tvMensaje.visibility = View.VISIBLE
                     }
                 }
 
-            } catch (e: IOException) {
-                withContext(Dispatchers.Main) {
-                    setCargando(false)
-                    Toast.makeText(applicationContext, "Error de red: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
-                }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    setCargando(false)
-                    Toast.makeText(applicationContext, "Error: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
+                    progressBar.visibility = View.GONE
+                    btnActualizar.isEnabled = true
+                    tvMensaje.text = "Error de conexión: ${e.message}"
+                    tvMensaje.visibility = View.VISIBLE
                 }
             } finally {
                 conn?.disconnect()
             }
         }
+    }
+
+    private fun mostrarError(mensaje: String) {
+        progressBar.visibility = View.GONE
+        scrollView.visibility = View.GONE
+        tvMensaje.visibility = View.VISIBLE
+        tvMensaje.text = mensaje
     }
 }
